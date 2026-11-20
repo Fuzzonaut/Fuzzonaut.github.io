@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>fuzzonaut · work in progress</title>
+  <meta name="description" content="Fuzzonaut's corner of the internet: math, machine learning, games and side projects. Under construction.">
+  <meta name="theme-color" content="#05060b">
+  <meta property="og:title" content="fuzzonaut.me">
+  <meta property="og:description" content="Under construction. Currently down a rabbit hole.">
+  <meta property="og:url" content="https://fuzzonaut.me/">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%2305060b'/%3E%3Ccircle cx='5' cy='5' r='1.6' fill='%23ffae5c'/%3E%3Ccircle cx='11' cy='5' r='1.6' fill='%23ff7aa8'/%3E%3Ccircle cx='5' cy='11' r='1.6' fill='%23ff7aa8'/%3E%3Ccircle cx='11' cy='11' r='1.6' fill='%23a98bff'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css">
+  <script src="main.js" defer></script>
+</head>
+<body>
+  <canvas id="sky" aria-hidden="true"></canvas>
+
+  <div id="astronaut" aria-hidden="true">
+    <svg viewBox="0 0 64 64" width="56" height="56">
+      <defs>
+        <linearGradient id="visor" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#3a2f6b"/>
+          <stop offset="1" stop-color="#0d0b1f"/>
+        </linearGradient>
+      </defs>
+      <rect x="13" y="25" width="38" height="25" rx="7" fill="#9fa3b8"/>
+      <rect x="21" y="44" width="9" height="15" rx="4.5" fill="#e4e0d8"/>
+      <rect x="34" y="44" width="9" height="15" rx="4.5" fill="#e4e0d8"/>
+      <rect x="6" y="32" width="15" height="8" rx="4" fill="#e4e0d8" transform="rotate(18 14 36)"/>
+      <rect x="43" y="25" width="15" height="8" rx="4" fill="#e4e0d8" transform="rotate(-38 50 29)"/>
+      <rect x="18" y="28" width="28" height="23" rx="9" fill="#f3f0ea"/>
+      <rect x="26" y="35" width="12" height="7" rx="2" fill="#262a40"/>
+      <circle cx="29.5" cy="38.5" r="1.4" fill="#ffae5c"/>
+      <circle cx="34.5" cy="38.5" r="1.4" fill="#a98bff"/>
+      <circle cx="32" cy="19" r="14" fill="#f3f0ea"/>
+      <ellipse cx="33" cy="19" rx="10" ry="8" fill="url(#visor)"/>
+      <ellipse cx="29" cy="16" rx="3.2" ry="1.8" fill="#ffae5c" opacity=".75" transform="rotate(-25 29 16)"/>
+      <circle cx="37" cy="22" r="1" fill="#ff7aa8" opacity=".7"/>
+    </svg>
+  </div>
+
+  <main>
+    <section class="hero">
+      <h1 class="sr-only">WIP: fuzzonaut.me is under construction</h1>
+      <div class="hero-inner">
+        <div id="wip">
+          <noscript><p class="wip-fallback">WIP</p></noscript>
+        </div>
+        <p class="caption" aria-hidden="true">fuzzonaut.me is under construction<span class="caret">_</span></p>
+      </div>
+      <a class="cue" href="#about">
+        <span>who am i</span>
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </section>
+
+    <section class="about" id="about">
+      <article class="about-card">
+        <p class="label reveal" style="--i:0">incoming transmission</p>
+        <h2 class="reveal" style="--i:1">Fuzzonaut</h2>
+        <p class="reveal" style="--i:2">
+          Fuzzonaut is the name I go by online. He’s the part of me that can get just as absorbed in an
+          abstract math question as in figuring out how to make something work. That curiosity is what ties
+          together the <strong>math</strong>, <strong>machine learning</strong>, <strong>games</strong>, and
+          <strong>side projects</strong> on my website.
+        </p>
+        <p class="reveal" style="--i:3">
+          The name carries some of my taste in music, too. Think guitar fuzz, stoner rock, and the spacey side
+          of psychedelia. If you need a feel for his personality, imagine someone who takes the question
+          <em>“I wonder how that works”</em> seriously enough to disappear into it for a weekend.
+        </p>
+        <p class="signoff reveal" style="--i:4">the rest of the site is still in orbit. check back soon.</p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>
