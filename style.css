@@ -132,10 +132,7 @@ main { position: relative; z-index: 1; }
   padding: 6rem 1.25rem;
 }
 
-.about-card {
-  width: 100%;
-  max-width: 44rem;
-  padding: clamp(1.75rem, 5vw, 3.5rem);
+.card {
   border: 1px solid rgba(236, 230, 220, .12);
   border-radius: 14px;
   background: rgba(8, 10, 18, .66);
@@ -145,7 +142,13 @@ main { position: relative; z-index: 1; }
   clip-path: inset(50% 0 50% 0 round 14px);
   transition: clip-path 1.1s cubic-bezier(.7, 0, .2, 1);
 }
-.about-card.open { clip-path: inset(0 0 0 0 round 14px); }
+.card.open { clip-path: inset(0 0 0 0 round 14px); }
+
+.about-card {
+  width: 100%;
+  max-width: 44rem;
+  padding: clamp(1.75rem, 5vw, 3.5rem);
+}
 
 .reveal {
   opacity: 0;
@@ -184,6 +187,84 @@ main { position: relative; z-index: 1; }
   font-size: .82rem;
 }
 
+/* ---------- black hole (top-right corner) ---------- */
+:root {
+  --bh-size: 84px;
+  --bh-inset: clamp(14px, 3vw, 34px);
+}
+
+.blackhole {
+  position: fixed;
+  top: var(--bh-inset);
+  right: var(--bh-inset);
+  z-index: 3;
+  width: var(--bh-size);
+  height: var(--bh-size);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  transition: transform .5s cubic-bezier(.2, .8, .2, 1);
+}
+.blackhole:hover, .blackhole[aria-expanded="true"] { transform: scale(1.15); }
+.blackhole:focus-visible { outline: 1px dashed var(--amber); outline-offset: 10px; }
+.blackhole span { position: absolute; border-radius: 50%; pointer-events: none; }
+
+/* accretion disk: a ring squashed into a tilted ellipse, spinning */
+.bh-disk { inset: -10% -55%; transform: rotate(-18deg) scaleY(.3); }
+.bh-disk::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg,
+    rgba(255, 174, 92, .95), rgba(255, 122, 168, .55), rgba(169, 139, 255, .15),
+    rgba(255, 122, 168, .6), rgba(255, 174, 92, .95), rgba(255, 230, 200, .9), rgba(255, 174, 92, .95));
+  -webkit-mask: radial-gradient(closest-side, transparent 42%, #000 48%, #000 70%, transparent 100%);
+  mask: radial-gradient(closest-side, transparent 42%, #000 48%, #000 70%, transparent 100%);
+  filter: blur(1.5px);
+  animation: spin 4s linear infinite;
+}
+.blackhole:hover .bh-disk::before,
+.blackhole[aria-expanded="true"] .bh-disk::before { animation-duration: 1.2s; }
+
+/* photon ring + lensed glow around the horizon */
+.bh-lens {
+  inset: 6%;
+  background: radial-gradient(closest-side, transparent 58%, rgba(255, 214, 170, .9) 64%, rgba(255, 122, 168, .45) 74%, rgba(169, 139, 255, .12) 88%, transparent 100%);
+  filter: blur(.6px);
+}
+.bh-core {
+  inset: 24%;
+  background: #000;
+  box-shadow: 0 0 4px 1px rgba(0, 0, 0, .9);
+}
+@keyframes spin { to { transform: rotate(1turn); } }
+
+.portal {
+  position: fixed;
+  z-index: 3;
+  top: calc(var(--bh-inset) + var(--bh-size) + 1.25rem);
+  right: var(--bh-inset);
+  width: min(21rem, calc(100vw - 28px));
+  padding: 1.5rem 1.6rem 1.6rem;
+  transition-duration: .6s;
+}
+.portal .reveal { transition-delay: calc(.25s + var(--i, 0) * .08s); }
+.portal p:not(.label) { margin-top: .6rem; color: #cfc9bf; }
+.portal-link {
+  display: inline-block;
+  margin-top: .9rem;
+  color: var(--fg);
+  font-size: 1.05rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 174, 92, .5);
+  transition: color .2s, border-color .2s;
+}
+.portal-link:hover, .portal-link:focus-visible { color: var(--amber); border-color: var(--amber); }
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -196,11 +277,14 @@ main { position: relative; z-index: 1; }
 @media (max-width: 600px) {
   #wip { width: 92vw; }
   #astronaut { --px: 2px; }
+  :root { --bh-size: 64px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .caret, .cue svg { animation: none; }
-  .about-card { clip-path: none; transition: none; }
+  .card { clip-path: none; transition: none; }
+  .portal:not(.open) { visibility: hidden; }
+  .bh-disk::before { animation: none; }
   .reveal { opacity: 1; transform: none; transition: none; }
 }

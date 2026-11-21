@@ -11,13 +11,24 @@
   <meta property="og:url" content="https://fuzzonaut.me/">
   <meta property="og:type" content="website">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='4' fill='%2305060b'/%3E%3Ccircle cx='5' cy='5' r='1.6' fill='%23ffae5c'/%3E%3Ccircle cx='11' cy='5' r='1.6' fill='%23ff7aa8'/%3E%3Ccircle cx='5' cy='11' r='1.6' fill='%23ff7aa8'/%3E%3Ccircle cx='11' cy='11' r='1.6' fill='%23a98bff'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="style.css?v=3">
-  <script src="main.js?v=3" defer></script>
+  <link rel="stylesheet" href="style.css?v=4">
+  <script src="main.js?v=4" defer></script>
 </head>
 <body>
   <canvas id="sky" aria-hidden="true"></canvas>
 
   <div id="astronaut" aria-hidden="true"></div>
+
+  <button class="blackhole" id="blackhole" type="button" aria-label="Black hole" aria-expanded="false" aria-controls="portal">
+    <span class="bh-disk"></span>
+    <span class="bh-lens"></span>
+    <span class="bh-core"></span>
+  </button>
+  <aside class="card portal" id="portal" inert>
+    <p class="label reveal" style="--i:0">event horizon</p>
+    <p class="reveal" style="--i:1">nothing past this point yet. for now, enjoy</p>
+    <a class="portal-link reveal" style="--i:2" href="https://fuzzonaut.itch.io" target="_blank" rel="noopener">fuzzonaut.itch.io ↗</a>
+  </aside>
 
   <main>
     <section class="hero">
@@ -35,7 +46,7 @@
     </section>
 
     <section class="about" id="about">
-      <article class="about-card">
+      <article class="card about-card">
         <p class="label reveal" style="--i:0">incoming transmission</p>
         <h2 class="reveal" style="--i:1">Fuzzonaut</h2>
         <p class="reveal" style="--i:2">

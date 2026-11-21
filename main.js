@@ -7,6 +7,8 @@
   const wipBox = document.getElementById('wip');
   const astro = document.getElementById('astronaut');
   const root = document.documentElement;
+  const hole = document.getElementById('blackhole');
+  const portal = document.getElementById('portal');
 
   // ---------- WIP bitmap: blocky letters, each cell rendered as SUB x SUB dots ----------
   const GLYPHS = {
@@ -106,6 +108,10 @@
   let laidOut = false;
   let shooting = null;
   let nextShooting = 4000 + Math.random() * 6000;
+  let portalOpen = false;
+  let gravity = 0;                  // 0..1, how hard the black hole pulls on stars
+  let bhX = 0, bhY = 0;             // black hole centre in client coords
+  const BH_REACH = 320;
 
   // ---------- pixel-art astronaut in a Manned Maneuvering Unit ----------
   // One char per pixel; '.' is transparent. Nozzles (D) sit at rows 4 and 21 on both edges.
@@ -224,6 +230,9 @@
     }
     astroState.halfW = astro.offsetWidth / 2;
     astroState.halfH = astro.offsetHeight / 2;
+    const bh = hole.getBoundingClientRect();
+    bhX = bh.left + bh.width / 2;
+    bhY = bh.top + bh.height / 2;
     laidOut = true;
   }
 
@@ -241,6 +250,8 @@
     const sy = scrollY;
     smoothPointer.x += ((pointer ? pointer.x / W - 0.5 : 0) - smoothPointer.x) * 0.04 * f;
     smoothPointer.y += ((pointer ? pointer.y / H - 0.5 : 0) - smoothPointer.y) * 0.04 * f;
+    const gravityTarget = portalOpen ? 1 : 0.15;
+    gravity = reduceMotion ? gravityTarget : gravity + (gravityTarget - gravity) * 0.05 * f;
 
     for (let i = 0; i < starCount; i++) {
       const s = stars[i];
@@ -249,6 +260,17 @@
       let y = s.y * H - sy * 0.25 * s.z - smoothPointer.y * 30 * s.z;
       x = ((x % W) + W) % W;
       y = ((y % H) + H) % H;
+      if (gravity > 0.01) {
+        // Stars near the black hole get dragged toward it (harder while the portal is open)
+        const dx = bhX - x;
+        const dy = bhY - y;
+        const d = Math.hypot(dx, dy);
+        if (d < BH_REACH) {
+          const k = (1 - d / BH_REACH) ** 2 * 0.85 * gravity;
+          x += dx * k;
+          y += dy * k;
+        }
+      }
       const tw = reduceMotion ? 0.8 : 0.55 + 0.45 * Math.sin(t * s.speed + s.phase);
       ctx.fillStyle = `rgba(${s.color},${(0.25 + 0.75 * s.z) * tw})`;
       ctx.beginPath();
@@ -396,6 +418,30 @@
     moveAstronaut(t, f);
     requestAnimationFrame(frame);
   }
+
+  // ---------- black hole portal (hover, tap, or keyboard) ----------
+  let closeTimer = 0;
+  function setPortal(open) {
+    clearTimeout(closeTimer);
+    portalOpen = open;
+    portal.classList.toggle('open', open);
+    portal.inert = !open;
+    hole.setAttribute('aria-expanded', String(open));
+  }
+  const closeSoon = () => {
+    clearTimeout(closeTimer);
+    closeTimer = setTimeout(() => setPortal(false), 450);
+  };
+  for (const el of [hole, portal]) {
+    el.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') setPortal(true); });
+    el.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') closeSoon(); });
+  }
+  // Mouse already opened it on hover, so a click keeps it open; touch and keyboard toggle.
+  hole.addEventListener('click', (e) => setPortal(e.pointerType === 'mouse' || !portalOpen));
+  addEventListener('keydown', (e) => { if (e.key === 'Escape' && portalOpen) { setPortal(false); hole.focus(); } });
+  document.addEventListener('pointerdown', (e) => {
+    if (portalOpen && !hole.contains(e.target) && !portal.contains(e.target)) setPortal(false);
+  });
 
   // ---------- about card opens when scrolled into view ----------
   // Observe the section, not the card: the card's clip-path collapses its visible area to zero.
