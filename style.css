@@ -44,6 +44,7 @@ body::before {
 }
 
 #astronaut {
+  --px: 3px; /* on-screen size of one sprite pixel */
   position: fixed;
   left: 0;
   top: 0;
@@ -53,7 +54,7 @@ body::before {
   filter: drop-shadow(0 0 10px rgba(169, 139, 255, .35));
   transform: translate3d(-200px, -200px, 0);
 }
-#astronaut svg { display: block; }
+#astronaut canvas { display: block; image-rendering: pixelated; }
 
 main { position: relative; z-index: 1; }
 
@@ -194,6 +195,7 @@ main { position: relative; z-index: 1; }
 
 @media (max-width: 600px) {
   #wip { width: 92vw; }
+  #astronaut { --px: 2px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

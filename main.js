@@ -107,7 +107,87 @@
   let shooting = null;
   let nextShooting = 4000 + Math.random() * 6000;
 
-  const astroState = { x: 0, y: 0, vx: 0, vy: 0, size: 56 };
+  // ---------- pixel-art astronaut in a Manned Maneuvering Unit ----------
+  // One char per pixel; '.' is transparent. Nozzles (D) sit at rows 4 and 21 on both edges.
+  const SPRITE = [
+    '.........KKKKKKKK.........',
+    '.......KKWWWWWWWWKK.......',
+    '.......KWWWWWWWWWWK.......',
+    '.KKKKKKWKKKKKKKKKKwKKKKKK.',
+    'DKGGGgKWKVvvVVVVVKwKgGGGKD',
+    'KKGGGgKWKVvVVVVVVKwKgGGGKK',
+    '.KggGgKWKVVVVVVVVKwKgGggK.',
+    '.KGGGgKWKVVVVVVpVKwKgGGGK.',
+    '.KGGGgKWWKKKKKKKKwwKgGGGK.',
+    '.KGGGgKwwwwwwwwwwwwKgGGGK.',
+    '.KGGKKKKKGGGGGGGGKKKKKGGK.',
+    '.KGGKWWwKWWWWWWWWKwWWKGGK.',
+    '.KggKWWwKKKKKKKKKKwWWKggK.',
+    '.KKKKWWwKKDDDDDGKKwWWKKKK.',
+    '.KOKKWWwKKOBDpDDKKwWWKKOK.',
+    '.KDKKGGgKKDDDDDGKKgGGKKDK.',
+    '.KDKKGGgKKKKKKKKKKgGGKKDK.',
+    '.KKKKKKKKWWWWWWWWKKKKKKKK.',
+    '.KggggggKGGGGGGGGKggggggK.',
+    '.KKKKKKKKwwwwwwwwKKKKKKKK.',
+    'KKGGGgKwwwwwwwwwwwwKgGGGKK',
+    'DKGGGgKKKKKKKKKKKKKKgGGGKD',
+    '.KKKKKKKWWWwKKwWWWKKKKKKK.',
+    '.......KOOOOKKOOOOK.......',
+    '.......KWWWwKKwWWWK.......',
+    '.......KWWWwKKwWWWK.......',
+    '.......KGGGGKKGGGGK.......',
+    '.......KDDDDKKDDDDK.......',
+    '.......KDDDDKKDDDDK.......',
+    '.......KKKKKKKKKKKK.......',
+  ];
+  const SPRITE_PALETTE = {
+    K: '#14162a', W: '#f3f0ea', w: '#bdb8c9', G: '#8f94a8', g: '#5b6078', D: '#3a3f55',
+    V: '#2a2350', v: '#ffae5c', p: '#ff7aa8', O: '#ffae5c', B: '#a98bff',
+  };
+  const NOZZLE_ROWS = [4, 21];
+  const JET_PAD = 4; // transparent columns on each side for thruster puffs
+  const SPRITE_W = SPRITE[0].length;
+
+  const body = document.createElement('canvas');
+  body.width = SPRITE_W;
+  body.height = SPRITE.length;
+  const bctx = body.getContext('2d');
+  SPRITE.forEach((row, y) => {
+    for (let x = 0; x < row.length; x++) {
+      if (row[x] === '.') continue;
+      bctx.fillStyle = SPRITE_PALETTE[row[x]];
+      bctx.fillRect(x, y, 1, 1);
+    }
+  });
+
+  const sprite = document.createElement('canvas');
+  sprite.width = SPRITE_W + JET_PAD * 2;
+  sprite.height = SPRITE.length;
+  sprite.style.width = `calc(var(--px) * ${sprite.width})`;
+  sprite.style.height = `calc(var(--px) * ${sprite.height})`;
+  const sctx = sprite.getContext('2d');
+  astro.appendChild(sprite);
+
+  // Thrusters fire on the side opposite to travel; intensity 0..1
+  function drawSprite(jetLeft, jetRight) {
+    sctx.clearRect(0, 0, sprite.width, sprite.height);
+    sctx.drawImage(body, JET_PAD, 0);
+    for (const [power, nozzleX, dir] of [[jetLeft, JET_PAD, -1], [jetRight, JET_PAD + SPRITE_W - 1, 1]]) {
+      if (power < 0.05) continue;
+      for (const y of NOZZLE_ROWS) {
+        sctx.fillStyle = `rgba(223,232,255,${power.toFixed(2)})`;
+        sctx.fillRect(dir < 0 ? nozzleX - 2 : nozzleX + 1, y, 2, 1);
+        if (power > 0.4) {
+          sctx.fillStyle = `rgba(223,232,255,${(power * 0.45).toFixed(2)})`;
+          sctx.fillRect(dir < 0 ? nozzleX - 4 : nozzleX + 3, y, 1, 1);
+        }
+      }
+    }
+  }
+  drawSprite(0, 0);
+
+  const astroState = { x: 0, y: 0, vx: 0, vy: 0, halfW: 0, halfH: 0 };
 
   function layout() {
     W = innerWidth;
@@ -142,6 +222,8 @@
       astroState.x = reduceMotion ? W * 0.8 : W * 0.85;
       astroState.y = reduceMotion ? H * 0.22 : H * 0.2;
     }
+    astroState.halfW = astro.offsetWidth / 2;
+    astroState.halfH = astro.offsetHeight / 2;
     laidOut = true;
   }
 
@@ -279,9 +361,9 @@
         ty = H * (0.5 + 0.34 * Math.sin(t * 0.00017 + 1.3));
       }
       // Keep him on screen even when the cursor sits at an edge
-      const m = a.size;
-      tx = Math.min(Math.max(tx, m), W - m);
-      ty = Math.min(Math.max(ty, m), H - m);
+      const mx = a.halfW, my = a.halfH;
+      tx = Math.min(Math.max(tx, mx), W - mx);
+      ty = Math.min(Math.max(ty, my), H - my);
       a.vx += (tx - a.x) * 0.0009 * f;
       a.vy += (ty - a.y) * 0.0009 * f;
       a.vx *= Math.pow(0.965, f);
@@ -290,9 +372,14 @@
       a.y += a.vy * f;
     }
     const bob = reduceMotion ? 0 : Math.sin(t * 0.0012) * 6;
-    const rot = reduceMotion ? -12 : Math.sin(t * 0.0004) * 20 + a.vx * 2.5;
+    const rot = reduceMotion ? -8 : Math.sin(t * 0.0004) * 10 + a.vx * 1.5;
+    if (!reduceMotion) {
+      const flicker = 0.7 + 0.3 * Math.random();
+      const power = Math.min(1, Math.abs(a.vx) / 2.5) * flicker;
+      drawSprite(a.vx > 0 ? power : 0, a.vx < 0 ? power : 0);
+    }
     astro.style.transform =
-      `translate3d(${(a.x - a.size / 2).toFixed(1)}px, ${(a.y - a.size / 2 + bob).toFixed(1)}px, 0) rotate(${rot.toFixed(1)}deg)`;
+      `translate3d(${(a.x - a.halfW).toFixed(1)}px, ${(a.y - a.halfH + bob).toFixed(1)}px, 0) rotate(${rot.toFixed(1)}deg)`;
   }
 
   // ---------- loop ----------
